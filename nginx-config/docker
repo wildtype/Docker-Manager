@@ -1,0 +1,17 @@
+server {
+	listen 80;
+	listen [::]:80;
+
+	server_name dockerjs.local;
+
+	location / {
+    root /home/caveman/Documents/Sandbox/js/docker;
+    index index.html;
+
+		try_files $uri $uri/ @docker_backend;
+  }
+
+  location @docker_backend {
+    proxy_pass             http://unix:/var/run/docker.sock;
+	}
+}

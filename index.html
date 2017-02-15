@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Docker Management</title>
+  <style>
+*{padding:0;margin:0;}
+
+body{
+  font: 18px/1.6 Georgia;
+}
+.docker-manager__container-item {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+.docker-manager__container-name {
+  font-weight: 700;
+  font-size: 1.6em;
+}
+.docker-manager__container-image {
+  font-weight: 200;
+}
+.docker-manager__container-id {
+  font-weight: 200;
+  font-size: .8em;
+  color: #666;
+}
+.docker-manager__container-status {
+  font-weight: 400;
+}
+  </style>
+</head>
+<body>
+<div class="docker-manager__container-list"></div>
+</body>
+<script src="/src/jquery-3.1.1.min.js"></script>
+<script src="/src/docker.js"></script>
+</html>
