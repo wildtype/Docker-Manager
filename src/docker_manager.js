@@ -4,6 +4,7 @@ export default class DockerManager {
       containerList: '.docker-manager__container-list',
       containerItem: '.docker-manager__container-item'
     };
+    this.loadContainers();
   }
 
   loadContainers() {
