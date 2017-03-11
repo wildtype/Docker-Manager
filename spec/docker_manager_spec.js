@@ -8,7 +8,7 @@ describe("DockerManager", function() {
   beforeEach(function() {
     htmlContainer = affix('.docker-manager__container-list');
     startContainerButton = affix('button.docker-manager__container-action--start[data-container-id=myFakeContainerId12345]');
-    stopContainerButton = affix('button.docker-manager__container-action--stop');
+    stopContainerButton = affix('button.docker-manager__container-action--stop[data-container-id=myFakeContainerId12345]');
 
     //we dont want it to calls ajax evrytime DockerManager instatiated
     spyLoadContainers = spyOn(DockerManager.prototype, 'loadContainers');
@@ -35,16 +35,20 @@ describe("DockerManager", function() {
 
     it('bind click event on start container buttons', function() {
       spyOn(DockerManager.prototype, 'startContainer');
+      spyOn(DockerManager.prototype, 'stopContainer');
       dockerManager = new DockerManager();
       startContainerButton.click();
       expect(dockerManager.startContainer).toHaveBeenCalled();
+      expect(dockerManager.stopContainer).not.toHaveBeenCalled();
     });
 
     it('bind click event on stop container buttons', function() {
+      spyOn(DockerManager.prototype, 'startContainer');
       spyOn(DockerManager.prototype, 'stopContainer');
       dockerManager = new DockerManager();
       stopContainerButton.click();
       expect(dockerManager.stopContainer).toHaveBeenCalled();
+      expect(dockerManager.startContainer).not.toHaveBeenCalled();
     });
   });
 
@@ -137,9 +141,8 @@ describe("DockerManager", function() {
   });
 
   describe('#startContainer', function() {
-
     beforeEach(function() {
-      var fakeEvent = { target: startContainerButton };
+      var fakeEvent = { target: startContainerButton, stopPropagation: function(){} };
 
       jasmine.Ajax.install();
       dockerManager = new DockerManager();
@@ -154,6 +157,26 @@ describe("DockerManager", function() {
       var request = jasmine.Ajax.requests.mostRecent();
       expect(request.method).toEqual('POST');
       expect(request.url).toEqual('/containers/myFakeContainerId12345/start');
+    });
+  });
+
+  describe('#stopContainer', function() {
+    beforeEach(function() {
+      var fakeEvent = { target: stopContainerButton, stopPropagation: function(){} };
+
+      jasmine.Ajax.install();
+      dockerManager = new DockerManager();
+      dockerManager.stopContainer(fakeEvent);
+    });
+
+    afterEach(function() {
+      jasmine.Ajax.uninstall();
+    });
+
+    it('call ajax to stop container with id from data-container-id', function() {
+      var request = jasmine.Ajax.requests.mostRecent();
+      expect(request.method).toEqual('POST');
+      expect(request.url).toEqual('/containers/myFakeContainerId12345/stop');
     });
   });
 });

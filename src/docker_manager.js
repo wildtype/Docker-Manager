@@ -6,10 +6,11 @@ export default class DockerManager {
       startContainerButtons: '.docker-manager__container-action--start',
       stopContainerButtons: '.docker-manager__container-action--stop'
     };
+
     this.loadContainers();
 
-    $('body').bind('click', this.startContainerButtons, this.startContainer.bind(this));
-    $('body').bind('click', this.stopContainerButtons, this.stopContainer.bind(this));
+    $('body').on('click', this.sel.startContainerButtons, this.startContainer.bind(this));
+    $('body').on('click', this.sel.stopContainerButtons, this.stopContainer.bind(this));
   }
 
   loadContainers() {
@@ -49,7 +50,7 @@ export default class DockerManager {
   }
 
   startContainer(e) {
-    console.log(e)
+    e.stopPropagation();
     var target = $(e.target);
     var containerId = target.data('containerId');
     if(containerId) {
@@ -57,5 +58,12 @@ export default class DockerManager {
     }
   }
 
-  stopContainer(){}
+  stopContainer(e) {
+    e.stopPropagation();
+    var target = $(e.target);
+    var containerId = target.data('containerId');
+    if(containerId) {
+      $.post(`/containers/${containerId}/stop`);
+    }
+  }
 }
