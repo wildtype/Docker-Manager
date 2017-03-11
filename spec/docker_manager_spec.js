@@ -81,6 +81,13 @@ describe("DockerManager", function() {
   });
 
   describe('#displayContainers', function() {
+    it('clear previous containerList content', function() {
+      var someContent = $('<div class="some-content"></div>');
+      htmlContainer.append(someContent);
+      dockerManager = new DockerManager();
+      dockerManager.displayContainers(fakeReply);
+      expect(htmlContainer).not.toContainElement(someContent);
+    });
     it('append element to containerList, also strip leading slash from container Name', function() {
       dockerManager = new DockerManager();
       dockerManager.displayContainers(fakeReply);
@@ -146,6 +153,7 @@ describe("DockerManager", function() {
 
       jasmine.Ajax.install();
       dockerManager = new DockerManager();
+      dockerManager.loadContainers.calls.reset();
       dockerManager.startContainer(fakeEvent);
     });
 
@@ -153,10 +161,19 @@ describe("DockerManager", function() {
       jasmine.Ajax.uninstall();
     });
 
+    it('disable target button while running', function() {
+      expect(startContainerButton).toBeDisabled();
+    });
+
     it('call ajax to start container with id from data-container-id', function() {
       var request = jasmine.Ajax.requests.mostRecent();
       expect(request.method).toEqual('POST');
       expect(request.url).toEqual('/containers/myFakeContainerId12345/start');
+    });
+
+    it('always call loadContainers', function() {
+      jasmine.Ajax.requests.mostRecent().respondWith({status: 204});
+      expect(dockerManager.loadContainers).toHaveBeenCalled();
     });
   });
 
@@ -166,6 +183,7 @@ describe("DockerManager", function() {
 
       jasmine.Ajax.install();
       dockerManager = new DockerManager();
+      dockerManager.loadContainers.calls.reset();
       dockerManager.stopContainer(fakeEvent);
     });
 
@@ -173,10 +191,19 @@ describe("DockerManager", function() {
       jasmine.Ajax.uninstall();
     });
 
+    it('disable target button while running', function() {
+      expect(stopContainerButton).toBeDisabled();
+    });
+
     it('call ajax to stop container with id from data-container-id', function() {
       var request = jasmine.Ajax.requests.mostRecent();
       expect(request.method).toEqual('POST');
       expect(request.url).toEqual('/containers/myFakeContainerId12345/stop');
+    });
+
+    it('always call loadContainers', function() {
+      jasmine.Ajax.requests.mostRecent().respondWith({status: 204});
+      expect(dockerManager.loadContainers).toHaveBeenCalled();
     });
   });
 });

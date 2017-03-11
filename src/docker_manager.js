@@ -18,6 +18,8 @@ export default class DockerManager {
   }
 
   displayContainers(containers) {
+    $(this.sel.containerList).empty();
+
     containers.forEach(function eachContainer(container) {
       var containerView = $(`
         <div class=docker-manager__container-item>
@@ -53,8 +55,10 @@ export default class DockerManager {
     e.stopPropagation();
     var target = $(e.target);
     var containerId = target.data('containerId');
+
     if(containerId) {
-      $.post(`/containers/${containerId}/start`);
+      target.prop('disabled', true);
+      $.post(`/containers/${containerId}/start`).always(this.loadContainers.bind(this));
     }
   }
 
@@ -63,7 +67,8 @@ export default class DockerManager {
     var target = $(e.target);
     var containerId = target.data('containerId');
     if(containerId) {
-      $.post(`/containers/${containerId}/stop`);
+      target.prop('disabled', true);
+      $.post(`/containers/${containerId}/stop`).always(this.loadContainers.bind(this));
     }
   }
 }
