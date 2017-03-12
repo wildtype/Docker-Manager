@@ -3,14 +3,20 @@ export default class DockerManager {
     this.sel = {
       containerList: '.docker-manager__container-list',
       containerItem: '.docker-manager__container-item',
-      startContainerButtons: '.docker-manager__container-action--start',
-      stopContainerButtons: '.docker-manager__container-action--stop'
+      startContainerButtons: 'docker-manager__container-action--start',
+      stopContainerButtons: 'docker-manager__container-action--stop'
     };
 
     this.loadContainers();
 
-    $('body').on('click', this.sel.startContainerButtons, this.startContainer.bind(this));
-    $('body').on('click', this.sel.stopContainerButtons, this.stopContainer.bind(this));
+    document.addEventListener('click', (event) => {
+      var targetElement = event.target;
+
+      if(targetElement.classList.contains(this.sel.startContainerButtons))
+        this.startContainer.bind(this)(event);
+      else if(targetElement.classList.contains(this.sel.stopContainerButtons))
+        this.stopContainer.bind(this)(event);
+    });
   }
 
   loadContainers() {
