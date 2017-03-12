@@ -2,9 +2,13 @@ export default class DockerManager {
   constructor() {
     this.sel = {
       containerList: '.docker-manager__container-list',
-      containerItem: '.docker-manager__container-item',
-      startContainerButtons: 'docker-manager__container-action--start',
-      stopContainerButtons: 'docker-manager__container-action--stop'
+    };
+
+    this.classNames = {
+      containerItem: 'docker-manager__container-item',
+      actionButton: 'docker-manager__container-action',
+      startContainerButton: 'docker-manager__container-action--start',
+      stopContainerButton: 'docker-manager__container-action--stop'
     };
 
     this.loadContainers();
@@ -12,9 +16,9 @@ export default class DockerManager {
     document.addEventListener('click', (event) => {
       var targetElement = event.target;
 
-      if(targetElement.classList.contains(this.sel.startContainerButtons))
+      if(targetElement.classList.contains(this.classNames.startContainerButton))
         this.startContainer.bind(this)(event);
-      else if(targetElement.classList.contains(this.sel.stopContainerButtons))
+      else if(targetElement.classList.contains(this.classNames.stopContainerButton))
         this.stopContainer.bind(this)(event);
     });
   }
@@ -32,34 +36,36 @@ export default class DockerManager {
   }
 
   displayContainers(containers) {
-    $(this.sel.containerList).empty();
+    var containerList = document.querySelector(this.sel.containerList);
+    containerList.innerHTML = '';
 
     containers.forEach(function eachContainer(container) {
-      var containerView = $(`
-        <div class=docker-manager__container-item>
-          <div class=docker-manager__container-name>${container.Names[0].slice(1)}</div>
-          <div class=docker-manager__container-image>${container.Image}</div>
-          <div class=docker-manager__container-status>${container.Status}</div>
-        </div>
-      `);
+      var containerView = document.createElement('div');
+      containerView.classList.add(this.classNames.containerItem);
 
-      containerView.append(this.createStartStopButton(container));
-      $(this.sel.containerList).append(containerView);
+      containerView.innerHTML = `
+        <div class=docker-manager__container-name>${container.Names[0].slice(1)}</div>
+        <div class=docker-manager__container-image>${container.Image}</div>
+        <div class=docker-manager__container-status>${container.Status}</div>
+      `;
+
+      containerView.appendChild(this.createStartStopButton(container));
+      containerList.appendChild(containerView);
     }.bind(this));
   }
 
   createStartStopButton(container) {
-    var startStopButton =  $('<button class=docker-manager__container-action></button>');
-    startStopButton.attr('data-container-id', container.Id);
+    var startStopButton = document.createElement('button');
+
+    startStopButton.classList.add(this.classNames.actionButton);
+    startStopButton.setAttribute('data-container-id', container.Id);
 
     if(container.State === 'running') {
-      startStopButton.addClass('docker-manager__container-action--stop');
-      startStopButton.attr('data-action', 'stop');
-      startStopButton.html('Stop');
+      startStopButton.classList.add(this.classNames.stopContainerButton);
+      startStopButton.innerHTML = 'Stop';
     } else {
-      startStopButton.addClass('docker-manager__container-action--start');
-      startStopButton.attr('data-action', 'start');
-      startStopButton.html('Start');
+      startStopButton.classList.add(this.classNames.startContainerButton);
+      startStopButton.innerHTML = 'Start';
     }
 
     return startStopButton;
@@ -67,11 +73,11 @@ export default class DockerManager {
 
   startContainer(e) {
     e.stopPropagation();
-    var target = $(e.target);
-    var containerId = target.data('containerId');
+    var target = e.target;
+    var containerId = target.getAttribute('data-container-id');
 
     if(containerId) {
-      target.prop('disabled', true);
+      target.setAttribute('disabled', true);
 
       var request = new XMLHttpRequest();
       request.open('POST', `/containers/${containerId}/start`);
@@ -82,11 +88,11 @@ export default class DockerManager {
 
   stopContainer(e) {
     e.stopPropagation();
-    var target = $(e.target);
-    var containerId = target.data('containerId');
+    var target = e.target;
+    var containerId = target.getAttribute('data-container-id');
 
     if(containerId) {
-      target.prop('disabled', true);
+      target.setAttribute('disabled', true);
 
       var request = new XMLHttpRequest();
       request.open('POST', `/containers/${containerId}/stop`);

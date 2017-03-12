@@ -88,6 +88,7 @@ describe("DockerManager", function() {
       dockerManager.displayContainers(fakeReply);
       expect(htmlContainer).not.toContainElement(someContent);
     });
+
     it('append element to containerList, also strip leading slash from container Name', function() {
       dockerManager = new DockerManager();
       dockerManager.displayContainers(fakeReply);
@@ -106,11 +107,16 @@ describe("DockerManager", function() {
     });
 
     it('add start/stop button for containers', function() {
+      var button = affix('button.fake-button-4-test');
+
       dockerManager = new DockerManager();
-      spyOn(dockerManager, 'createStartStopButton');
+      spyOn(dockerManager, 'createStartStopButton').and.returnValue(button[0]);
       dockerManager.displayContainers(fakeReply);
 
       expect(dockerManager.createStartStopButton).toHaveBeenCalledWith(fakeReply[0]);
+
+      var containerItem = htmlContainer.children('.docker-manager__container-item');
+      expect(containerItem).toContainElement('button.fake-button-4-test');
     });
   });
 
@@ -119,7 +125,7 @@ describe("DockerManager", function() {
       dockerManager = new DockerManager();
 
       var startStopButton = dockerManager.createStartStopButton(fakeReply[0]);
-      expect(startStopButton.data('container-id')).toEqual('abcd12345');
+      expect(startStopButton.getAttribute('data-container-id')).toEqual('abcd12345');
     });
 
     it('display button to stop container if status is `running`', function() {
@@ -130,7 +136,6 @@ describe("DockerManager", function() {
 
       expect(startStopButton).toHaveClass('docker-manager__container-action');
       expect(startStopButton).toHaveClass('docker-manager__container-action--stop');
-      expect(startStopButton.data('action')).toEqual('stop');
       expect(startStopButton).toHaveText('Stop');
     });
 
@@ -142,14 +147,13 @@ describe("DockerManager", function() {
 
       expect(startStopButton).toHaveClass('docker-manager__container-action');
       expect(startStopButton).toHaveClass('docker-manager__container-action--start');
-      expect(startStopButton.data('action')).toEqual('start');
       expect(startStopButton).toHaveText('Start');
     });
   });
 
   describe('#startContainer', function() {
     beforeEach(function() {
-      var fakeEvent = { target: startContainerButton, stopPropagation: function(){} };
+      var fakeEvent = { target: startContainerButton[0], stopPropagation: function(){} };
 
       jasmine.Ajax.install();
       dockerManager = new DockerManager();
@@ -179,7 +183,7 @@ describe("DockerManager", function() {
 
   describe('#stopContainer', function() {
     beforeEach(function() {
-      var fakeEvent = { target: stopContainerButton, stopPropagation: function(){} };
+      var fakeEvent = { target: stopContainerButton[0], stopPropagation: function(){} };
 
       jasmine.Ajax.install();
       dockerManager = new DockerManager();
