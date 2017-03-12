@@ -14,7 +14,15 @@ export default class DockerManager {
   }
 
   loadContainers() {
-    $.get('/containers/json?all=1').done(this.displayContainers.bind(this));
+    var request = new XMLHttpRequest();
+
+    request.open('GET', '/containers/json?all=1');
+    request.onload = () => {
+      if (request.status === 200) {
+        this.displayContainers.bind(this)(JSON.parse(request.response));
+      }
+    };
+    request.send();
   }
 
   displayContainers(containers) {
@@ -58,7 +66,11 @@ export default class DockerManager {
 
     if(containerId) {
       target.prop('disabled', true);
-      $.post(`/containers/${containerId}/start`).always(this.loadContainers.bind(this));
+
+      var request = new XMLHttpRequest();
+      request.open('POST', `/containers/${containerId}/start`);
+      request.onload = this.loadContainers.bind(this);
+      request.send();
     }
   }
 
@@ -66,9 +78,14 @@ export default class DockerManager {
     e.stopPropagation();
     var target = $(e.target);
     var containerId = target.data('containerId');
+
     if(containerId) {
       target.prop('disabled', true);
-      $.post(`/containers/${containerId}/stop`).always(this.loadContainers.bind(this));
+
+      var request = new XMLHttpRequest();
+      request.open('POST', `/containers/${containerId}/stop`);
+      request.onload = this.loadContainers.bind(this);
+      request.send();
     }
   }
 }
