@@ -5,7 +5,7 @@ server {
   server_name dockerjs.local;
 
   location / {
-    root /home/caveman/Documents/Sandbox/js/docker;
+    root /var/www/docker-manager;
     index index.html;
 
     try_files $uri $uri/ @docker_backend;
